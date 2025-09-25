@@ -215,6 +215,12 @@
             transition: all 0.4s ease;
         }
 
+        .team-member:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
         .member-image {
             width: 120px;
             height: 120px;
@@ -245,6 +251,55 @@
             margin-top: 30px;
         }
 
+        .project-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.4s ease;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .project-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            color: #a8e6ff;
+            margin-bottom: 10px;
+        }
+
+        .project-date {
+            font-size: 0.9rem;
+            color: #8ac6d8;
+            margin-bottom: 10px;
+        }
+
+        .project-description {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #e0f7ff;
+            flex-grow: 1;
+        }
+
+        .load-more-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
         .load-more {
             margin-top: 20px;
             padding: 12px 24px;
@@ -260,6 +315,40 @@
         .load-more:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
+        }
+
+        .load-more.hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #a8e6ff;
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .project-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .team-member {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .burger-menu:hover {
+                height: 220px;
+                width: 200px;
+            }
         }
     </style>
 </head>
@@ -329,11 +418,17 @@
             <div id="project-list" class="project-list">
                 <div class="loading">Lade Projekte...</div>
             </div>
-            <button class="load-more">Mehr laden</button>
+            <div id="load-more-container" class="load-more-container">
+                <button id="load-more-btn" class="load-more hidden">Mehr Projekte laden</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // Google Sheets URL
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/1NATcMPoTGHL9MQ-JTbJzi-lHZuLLvC3CmBniCgkhnbs/edit?usp=sharing';
+        
+        // Navigation
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-links a');
 
@@ -396,6 +491,119 @@
         }
         
         setInterval(drawMatrix, 35);
+
+        // Google Sheets Integration
+        let allProjects = [];
+        let visibleCount = 4;
+
+        async function loadProjects() {
+            try {
+                // Google Sheets ID aus der URL extrahieren
+                const sheetId = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)[1];
+                
+                // CSV-Export-URL erstellen
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                
+                const response = await fetch(csvUrl);
+                const csvText = await response.text();
+                
+                // CSV in Array umwandeln
+                const rows = csvText.split('\n').map(row => {
+                    const result = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let char of row) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current);
+                    return result;
+                });
+                
+                // Header-Zeile entfernen und Daten filtern
+                const headers = rows[0];
+                const dataRows = rows.slice(1).filter(row => row.length >= 4 && row[0].trim() !== '');
+                
+                // Daten umkehren, damit das neueste Projekt zuerst erscheint
+                dataRows.reverse();
+                
+                // Projekte speichern
+                allProjects = dataRows;
+                
+                // Projekte anzeigen (nur die ersten 4)
+                displayProjects();
+            } catch (error) {
+                console.error('Fehler beim Laden der Projekte:', error);
+                document.getElementById('project-list').innerHTML = '<p>Fehler beim Laden der Projekte. Bitte versuchen Sie es später erneut.</p>';
+            }
+        }
+
+        // Projekte anzeigen
+        function displayProjects() {
+            const projectList = document.getElementById('project-list');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            
+            if (allProjects.length === 0) {
+                projectList.innerHTML = '<p>Keine Projekte gefunden.</p>';
+                loadMoreBtn.classList.add('hidden');
+                return;
+            }
+            
+            // Nur die ersten visibleCount Projekte anzeigen
+            const projectsToShow = allProjects.slice(0, visibleCount);
+            
+            projectList.innerHTML = '';
+            
+            projectsToShow.forEach((project, index) => {
+                const [title, date, description, imageUrl] = project;
+                
+                // Platzhalter-Bild, falls keine URL vorhanden
+                const imageSrc = imageUrl && imageUrl.trim() !== '' ? 
+                    imageUrl.trim() : 
+                    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/330px-Placeholder_view_vector.svg.png';
+                
+                const projectItem = document.createElement('div');
+                projectItem.className = 'project-item';
+                projectItem.innerHTML = `
+                    <img src="${imageSrc}" alt="${title}" class="project-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/330px-Placeholder_view_vector.svg.png'">
+                    <h3 class="project-title">${title}</h3>
+                    ${date ? `<div class="project-date">${date}</div>` : ''}
+                    <p class="project-description">${description || 'Keine Beschreibung verfügbar.'}</p>
+                `;
+                
+                projectList.appendChild(projectItem);
+            });
+            
+            // "Lade mehr" Button anzeigen, wenn es mehr Projekte gibt
+            if (allProjects.length > visibleCount) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        }
+
+        // "Lade mehr" Funktion
+        function loadMoreProjects() {
+            // Alle Projekte anzeigen
+            visibleCount = allProjects.length;
+            displayProjects();
+            
+            // Button ausblenden
+            document.getElementById('load-more-btn').classList.add('hidden');
+        }
+
+        // Event Listener für "Lade mehr" Button
+        document.getElementById('load-more-btn').addEventListener('click', loadMoreProjects);
+        
+        // Projekte laden, wenn die Seite geladen ist
+        document.addEventListener('DOMContentLoaded', loadProjects);
     </script>
 </body>
 </html>
