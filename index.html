@@ -193,6 +193,117 @@
             transform: translateY(-6px);
         }
 
+        /* Social Media Insel - unten rechts */
+        .social-island {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .social-menu {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .social-menu:hover {
+            height: 240px;
+            width: 220px;
+            border-radius: 20px;
+        }
+
+        .info-icon {
+            font-size: 24px;
+            color: #a8e6ff;
+            font-weight: bold;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-menu:hover .info-icon {
+            opacity: 0;
+        }
+
+        .social-links {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .social-menu:hover .social-links {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .social-links a {
+            color: #a8e6ff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.3s ease, transform 0.3s ease;
+            width: 80%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-links a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-6px);
+        }
+
+        /* Custom Icons mit deinen Bildern */
+        .custom-icon {
+            width: 24px;
+            height: 24px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.3s ease;
+        }
+
+        .social-links a:hover .custom-icon {
+            transform: scale(1.2);
+        }
+
+        .tiktok-icon {
+            background-image: url('https://cdn.discordapp.com/attachments/1404293908304891914/1420865169247965224/ChatGPT_Image_25._Sept._2025_21_57_51.png');
+        }
+
+        .github-icon {
+            background-image: url('https://cdn.discordapp.com/attachments/1404293908304891914/1420865169697013760/ChatGPT_Image_25._Sept._2025_22_10_45.png');
+        }
+
+        .discord-icon {
+            background-image: url('https://cdn.discordapp.com/attachments/1404293908304891914/1420865168782655578/ChatGPT_Image_25._Sept._2025_22_08_35.png');
+        }
+
         .page { display: none; }
         .page.active { display: block; }
 
@@ -349,6 +460,41 @@
                 height: 220px;
                 width: 200px;
             }
+            
+            .social-menu:hover {
+                height: 220px;
+                width: 200px;
+            }
+            
+            .burger-island, .social-island {
+                transform: scale(0.9);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .burger-island, .social-island {
+                transform: scale(0.8);
+            }
+            
+            .burger-island {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .social-island {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .custom-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .social-links a {
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
@@ -361,7 +507,7 @@
         <img src="https://cdn.discordapp.com/attachments/1395144218116362422/1420816051087740928/raw.png?ex=68d6c590&is=68d57410&hm=ecced155bba2bdc11aefc41000e8fff260bca8c5033d6cbb31f39e77d48ead1e&" alt="Logo">
     </div>
 
-    <!-- Burger Menü - jetzt oben rechts -->
+    <!-- Burger Menü - oben rechts -->
     <div class="burger-island">
         <div class="burger-menu">
             <div class="burger-lines">
@@ -373,6 +519,27 @@
                 <a href="#" data-page="home">Start</a>
                 <a href="#" data-page="about">Über uns</a>
                 <a href="#" data-page="projects">Projekte</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Media Insel - unten rechts -->
+    <div class="social-island">
+        <div class="social-menu">
+            <div class="info-icon">i</div>
+            <div class="social-links">
+                <a href="https://www.tiktok.com/@zweiniloc" target="_blank">
+                    <div class="custom-icon tiktok-icon"></div>
+                    TikTok
+                </a>
+                <a href="https://github.com/EinsNiloc" target="_blank">
+                    <div class="custom-icon github-icon"></div>
+                    GitHub
+                </a>
+                <a href="https://discord.gg/Dw9Ae4B8b8" target="_blank">
+                    <div class="custom-icon discord-icon"></div>
+                    Discord
+                </a>
             </div>
         </div>
     </div>
